@@ -47,7 +47,31 @@ section{padding:56px 0}
 .hero{background:var(--hero);color:var(--hero-ink);position:relative;overflow:hidden;padding:48px 0 0}
 .hero::before{content:"";position:absolute;inset:auto -20% 0 -20%;height:55%;background:radial-gradient(ellipse at 50% 100%,rgba(246,239,227,.55),rgba(246,239,227,0) 65%);filter:blur(8px)}
 .hero .wrap{position:relative}
-.brand{font-family:'Playfair Display',serif;color:var(--gold-bg);margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:14px;font-family:'Playfair Display',serif;color:var(--gold-bg);margin-bottom:24px}
+.brand-logo{flex:none;display:block;width:76px;height:76px}
+.brand-logo img{display:block;width:100%;height:100%}
+.brand-name{font-size:1.25rem;line-height:1.2}
+@media(min-width:700px){.brand-logo{width:96px;height:96px;margin-left:-6px}.brand-name{font-size:1.4rem}.hero{padding-top:36px}}
+@media(max-width:420px){.brand-logo{width:64px;height:64px}.brand-name{font-size:1.1rem}}
+html.intro-pending{overflow:hidden}
+html.intro-pending::before{content:"";position:fixed;inset:0;z-index:9998;background:var(--hero)}
+html.intro-pending .brand-logo img{visibility:hidden}
+html.intro-pending .hero .wrap>:not(.brand),html.intro-pending .proof{opacity:0;animation:none}
+@keyframes introRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+html.intro-go .hero .wrap>:not(.brand),html.intro-go .proof{animation:introRise .8s cubic-bezier(.2,.7,.2,1) both}
+html.intro-go .hero .wrap>:nth-child(3){animation-delay:.08s}html.intro-go .hero .wrap>:nth-child(4){animation-delay:.16s}html.intro-go .proof{animation-delay:.26s}
+html.intro-go .brand-name{animation:introRise .7s .3s cubic-bezier(.2,.7,.2,1) both}
+#intro{position:fixed;inset:0;z-index:9999;overflow:hidden;cursor:pointer;touch-action:none;-webkit-tap-highlight-color:transparent}
+#intro .in-bg{position:absolute;inset:0;background:var(--hero)}
+#intro .in-glow{position:absolute;left:0;top:0;border-radius:50%;opacity:0;background:radial-gradient(closest-side,rgba(214,186,112,.26),rgba(214,186,112,.08) 55%,rgba(214,186,112,0));will-change:opacity,transform}
+#intro .in-logo{position:absolute;left:0;top:0;width:var(--S);height:var(--S);transform-origin:0 0;will-change:transform}
+#intro .in-inner{position:absolute;inset:0}
+#intro .in-ring{position:absolute;left:49.9%;top:56%;border-radius:50%;border:2px solid rgba(222,196,128,.8);opacity:0;will-change:transform,opacity}
+#intro .L{position:absolute;left:0;top:0;width:100%;height:100%;display:block;opacity:0;pointer-events:none;user-select:none;-webkit-user-drag:none;will-change:transform,opacity}
+#intro .in-shine{position:absolute;inset:0;opacity:0;pointer-events:none;background:linear-gradient(105deg,rgba(255,246,214,0) 38%,rgba(255,246,214,.95) 50%,rgba(255,246,214,0) 62%) 0 0/320% 100% no-repeat;-webkit-mask:url(media/logo-shine.webp) center/100% 100% no-repeat;mask:url(media/logo-shine.webp) center/100% 100% no-repeat}
+#intro .in-spark{position:absolute;left:0;top:0;border-radius:50%;opacity:0;background:radial-gradient(circle,#fff 0,rgba(255,244,205,.95) 22%,rgba(230,200,120,.55) 48%,rgba(230,200,120,0) 72%);will-change:transform,opacity}
+#intro .in-skip{position:absolute;left:0;right:0;bottom:max(22px,env(safe-area-inset-bottom,0px));text-align:center;font:600 .8rem/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(246,239,227,.55);opacity:0;transition:opacity .5s}
+#intro .in-skip.on{opacity:1}
 .hero p.lead{font-size:1.1rem;max-width:34em;opacity:.92}
 .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0 36px}
 .proof{position:relative;background:rgba(0,0,0,.35);margin-top:20px;padding:16px 0}
@@ -166,12 +190,26 @@ body.form-in-view .consent{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 @media(max-width:559px){.gal-photos figure:first-child,.gal-photos figure:last-child{grid-column:1/-1}}
 @media(min-width:900px){.gal{grid-template-columns:3fr 1fr;align-items:start}.gal-videos{grid-template-columns:1fr}}
 </style>
+<script>
+/* Начално лого: пуска се веднъж за сесия. ?intro=1 го показва пак, ?intro=0 го изключва. */
+(function(){try{
+var d=document.documentElement,q=location.search;
+if(/[?&]intro=0(&|$)/.test(q))return;
+var force=/[?&]intro=1(&|$)/.test(q),seen=false;
+try{seen=sessionStorage.getItem('pe_intro')==='1'}catch(e){}
+if(window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+if(!force&&(seen||navigator.webdriver||location.hash.length>1))return;
+d.classList.add('intro-pending');
+setTimeout(function(){d.classList.remove('intro-pending')},9000);
+['band','inner','cup-l','cup-r','p','e','text','shine'].forEach(function(n){(new Image()).src='media/logo-'+n+'.webp'});
+}catch(e){}})();
+</script>
 </head>
 <body>
 
 <header class="hero">
 <div class="wrap">
-<div class="brand">PE Party Events Agency</div>
+<div class="brand"><span class="brand-logo" id="brandLogo"><img src="media/logo-pe.webp" width="256" height="256" alt="" decoding="async"></span><span class="brand-name">PE Party Events Agency</span></div>
 <h1>Първият ви танц ще го помнят всички гости.</h1>
 <p class="lead">Сватбен DJ, водеща, озвучаване и ефекти от един екип в Карлово. Вие избирате датата, ние се грижим за залата да не остава празна.</p>
 <div class="cta-row">
@@ -429,9 +467,131 @@ body.form-in-view .consent{bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 </div>
 
 <script>
+/* ============ Начално лого: сглобява се на екрана и каца до надписа ============ */
+(function(){
+'use strict';
+var d=document.documentElement;
+if(!d.classList.contains('intro-pending'))return;
+try{sessionStorage.setItem('pe_intro','1')}catch(e){}
+var slot=document.getElementById('brandLogo'),slotImg=slot&&slot.querySelector('img');
+if(!slotImg||!window.requestAnimationFrame){d.classList.remove('intro-pending');return}
+slotImg.style.visibility='hidden';
+var NAMES=['band','inner','cup-l','cup-r','p','e','text'];
+var UNIT=390,CX=194.6,CY=218.5,RB=127.2,TX=193.5,TY=224.8,RT=166;   /* геометрия на логото в единици от 390 */
+var done=false,raf=0,fs=0,ov=null,T0=0,S=0,X0=0,Y0=0,els={};
+function clamp(x){return x<0?0:x>1?1:x}
+function pr(t,a,b){return clamp((t-a)/(b-a))}
+var io=function(x){return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+var out=function(x){return 1-Math.pow(1-x,3)};
+var back=function(x){var c=1.70158;return 1+(c+1)*Math.pow(x-1,3)+c*Math.pow(x-1,2)};
+function tf(el,x,y,k){el.style.transform='translate3d('+x+'px,'+y+'px,0) scale('+k+')'}
+function sweep(el,from,delta,cx,cy,p){
+  if(p>=1){el.style.webkitMaskImage=el.style.maskImage='none';return}
+  var g='conic-gradient(from '+from+'deg at '+cx+'% '+cy+'%,#000 '+Math.max(0,delta-7)+'deg,rgba(0,0,0,0) '+delta+'deg)';
+  el.style.webkitMaskImage=el.style.maskImage=g;
+}
+function spark(el,cx,cy,r,bearing,vis){
+  var a=bearing*Math.PI/180,k=S/UNIT,sz=S*.075;
+  el.style.width=el.style.height=sz+'px';
+  tf(el,(cx+r*Math.sin(a))*k-sz/2,(cy-r*Math.cos(a))*k-sz/2,1);
+  el.style.opacity=vis;
+}
+/* време (мс) */
+var TL={band:[120,900],inner:[760,1120],cups:[880,1380],ring1:1330,ring2:1480,p:[1300,1680],e:[1420,1800],text:[1620,2360],shine:[2300,2800],fly:[2650,3400]};
+function render(t){
+  var k=S/UNIT,i;
+  els.glow.style.opacity=clamp(t/700)*(1-pr(t,TL.fly[0],TL.fly[0]+500))*.9;
+  var g=1+.12*pr(t,0,2600);tf(els.glow,X0+S/2-els.glowSize/2,Y0+S*.56-els.glowSize/2,g);
+  /* лента на слушалките: рисува се по дъгата, а искра води края */
+  var pb=io(pr(t,TL.band[0],TL.band[1]));
+  els.band.style.opacity=pb>0?1:0;sweep(els.band,236,pb*258,CX/UNIT*100,CY/UNIT*100,pb>=1?1:0);
+  spark(els.spark1,CX,CY,RB,236+pb*246,pb>0&&pb<1?1:0);
+  /* вътрешната дъга */
+  var pi_=out(pr(t,TL.inner[0],TL.inner[1]));els.inner.style.opacity=pi_;tf(els.inner,0,-S*.03*(1-pi_),1);
+  /* слушалките влитат от двете страни */
+  var pc=pr(t,TL.cups[0],TL.cups[1]),bc=back(pc);
+  els['cup-l'].style.opacity=els['cup-r'].style.opacity=clamp(pc*4);
+  tf(els['cup-l'],-S*.26*(1-bc),0,1);tf(els['cup-r'],S*.26*(1-bc),0,1);
+  /* P пада отгоре, E се вдига отдолу */
+  var pp=pr(t,TL.p[0],TL.p[1]),bp=back(pp);els.p.style.opacity=clamp(pp*3);tf(els.p,0,-S*.16*(1-bp),1);
+  var pe=pr(t,TL.e[0],TL.e[1]),be=back(pe);els.e.style.opacity=clamp(pe*3);tf(els.e,0,S*.16*(1-be),1);
+  /* звукови вълни при „удара“ на слушалките */
+  [TL.ring1,TL.ring2].forEach(function(t0,j){
+    var r=els.rings[j],p=pr(t,t0,t0+950),sz=S*.62;
+    r.style.width=r.style.height=sz+'px';r.style.marginLeft=r.style.marginTop=-sz/2+'px';
+    r.style.opacity=p>0&&p<1?.7*(1-p):0;r.style.transform='scale('+(.55+p*1.35)+')';
+  });
+  /* лек „пулс“ на цялото лого при удара */
+  var pu=pr(t,1300,1750);els.inner_.style.transform='scale('+(1+.035*Math.sin(Math.PI*pu))+')';
+  /* надписът се разгръща по часовниковата стрелка */
+  var pt=io(pr(t,TL.text[0],TL.text[1]));
+  els.text.style.opacity=pt>0?1:0;sweep(els.text,238,pt*232,TX/UNIT*100,TY/UNIT*100,pt>=1?1:0);
+  spark(els.spark2,TX,TY,RT,238+pt*222,pt>0&&pt<1?1:0);
+  /* блясък по златото */
+  var ps=pr(t,TL.shine[0],TL.shine[1]);els.shine.style.opacity=ps>0&&ps<1?1:0;els.shine.style.backgroundPositionX=(100-ps*100)+'%';
+  /* полет към мястото в началото на страницата */
+  var pf=io(pr(t,TL.fly[0],TL.fly[1]));
+  if(t>=TL.fly[0]+250&&d.classList.contains('intro-pending')){d.classList.remove('intro-pending');d.classList.add('intro-go');els.skip.classList.remove('on')}
+  var r=slotImg.getBoundingClientRect(),ts=r.width/S;
+  var x=X0+(r.left-X0)*pf,y=Y0+(r.top-Y0)*pf-Math.sin(Math.PI*pf)*S*.07,sc=1+(ts-1)*pf;
+  tf(els.logo,x,y,sc);
+  els.bg.style.opacity=1-pr(t,TL.fly[0]+250,TL.fly[1]-40);
+}
+function finish(landed){
+  if(done)return;done=true;
+  cancelAnimationFrame(raf);clearTimeout(fs);
+  ['pointerdown','keydown','wheel'].forEach(function(n){window.removeEventListener(n,skip)});
+  slotImg.style.visibility='';
+  d.classList.remove('intro-pending');d.classList.add('intro-go');
+  if(ov){if(landed){ov.remove()}else{ov.style.transition='opacity .28s';ov.style.opacity='0';var o=ov;setTimeout(function(){o.remove()},320)}}
+}
+function skip(){finish(false)}
+function frame(now){
+  if(done)return;
+  if(!T0)T0=now;
+  var t=now-T0;
+  render(t);
+  if(t>=TL.fly[1]){finish(true);return}
+  raf=requestAnimationFrame(frame);
+}
+function start(){
+  if(done)return;
+  clearTimeout(loadTimer);
+  S=Math.round(Math.max(200,Math.min(innerWidth*.82,innerHeight*.5,430)));
+  X0=Math.round((innerWidth-S)/2);Y0=Math.round((innerHeight-S)/2-innerHeight*.02);
+  ov=document.createElement('div');ov.id='intro';ov.setAttribute('aria-hidden','true');ov.style.setProperty('--S',S+'px');
+  var h='<div class="in-bg"></div><div class="in-glow"></div><div class="in-logo"><div class="in-inner"><i class="in-ring"></i><i class="in-ring"></i>';
+  NAMES.forEach(function(n){h+='<img class="L" data-n="'+n+'" src="media/logo-'+n+'.webp" alt="" draggable="false">'});
+  h+='<div class="in-shine"></div><i class="in-spark"></i><i class="in-spark"></i></div></div><div class="in-skip">Пропуснете</div>';
+  ov.innerHTML=h;
+  els.bg=ov.querySelector('.in-bg');els.glow=ov.querySelector('.in-glow');els.logo=ov.querySelector('.in-logo');els.inner_=ov.querySelector('.in-inner');
+  els.glowSize=Math.round(S*2.3);els.glow.style.width=els.glow.style.height=els.glowSize+'px';
+  NAMES.forEach(function(n){els[n]=ov.querySelector('[data-n="'+n+'"]')});
+  els.rings=[].slice.call(ov.querySelectorAll('.in-ring'));
+  els.shine=ov.querySelector('.in-shine');var sp=ov.querySelectorAll('.in-spark');els.spark1=sp[0];els.spark2=sp[1];
+  els.skip=ov.querySelector('.in-skip');
+  tf(els.logo,X0,Y0,1);
+  render(0);
+  document.body.appendChild(ov);
+  setTimeout(function(){if(!done&&els.skip)els.skip.classList.add('on')},900);
+  ['pointerdown','keydown','wheel'].forEach(function(n){window.addEventListener(n,skip,{passive:true})});
+  fs=setTimeout(function(){finish(false)},TL.fly[1]+2500);
+  raf=requestAnimationFrame(frame);
+}
+/* чакаме слоевете; ако се бавят, показваме сайта без анимация */
+var loaded=0,loadTimer=setTimeout(function(){finish(false)},2200);
+NAMES.concat(['shine']).forEach(function(n){
+  var im=new Image();
+  im.onload=function(){if(++loaded===NAMES.length+1)start()};
+  im.onerror=function(){finish(false)};
+  im.src='media/logo-'+n+'.webp';
+});
+})();
+</script>
+<script>
 /* ============ НАСТРОЙКИ: попълнете тук ============ */
 var CONFIG = {
-  FORM_ENDPOINT: '',  // URL за получаване на запитванията: Google Apps Script (/exec), Formspree или Web3Forms
+  FORM_ENDPOINT: 'https://script.google.com/macros/s/AKfycbwa0_MYqg2w-Nmry9TTYODmeGyvldDlsG4DJiBcDHShiZrD1UM3g_EHkMgaPvenVcuP/exec',  // URL за получаване на запитванията: Google Apps Script (/exec), Formspree или Web3Forms
   FORM_FIELDS: {},    // допълнителни полета към заявката, напр. {access_key:'...'} за Web3Forms
   GA_ID: '',          // Google Analytics 4, напр. 'G-XXXXXXXXXX'
   PIXEL_ID: '',       // Meta Pixel ID (само цифри)
